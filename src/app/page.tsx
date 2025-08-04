@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import { API_ENDPOINTS } from './config';
 
 interface SearchResult {
   filename: string;
@@ -50,14 +51,14 @@ export default function Home() {
     }
     
     if (uploadedFiles.length === 0) {
-      alert('Please upload some files first.');
+      alert('Please select some files first.');
       return;
     }
     setIsLoading(true);
     try {
       // First check if backend is running
       try {
-        const statusResponse = await fetch('http://localhost:8000/status');
+        const statusResponse = await fetch(API_ENDPOINTS.STATUS);
         if (!statusResponse.ok) {
           throw new Error('Backend server is not responding properly');
         }
@@ -77,7 +78,7 @@ export default function Home() {
       });
   
       console.log('Sending request to backend...');
-      const response = await fetch('http://localhost:8000/search', {
+      const response = await fetch(API_ENDPOINTS.SEARCH, {
         method: 'POST',
         body: formData,
       });
@@ -112,13 +113,13 @@ export default function Home() {
       console.log('Original filename:', fullPath);
       console.log('Search result:', result);
       
-      const response = await fetch(`http://localhost:8000/file/${encodeURIComponent(fileName)}`);
+      const response = await fetch(API_ENDPOINTS.FILE(fileName));
       
       if (!response.ok) {
         if (response.status === 404) {
           // Try with the full path
           console.log('Trying with full path:', fullPath);
-          const fullPathResponse = await fetch(`http://localhost:8000/file/${encodeURIComponent(fullPath)}`);
+          const fullPathResponse = await fetch(API_ENDPOINTS.FILE(fullPath));
           
           if (!fullPathResponse.ok) {
             throw new Error(`File '${result.filename}' is no longer available. Please upload your files again and search.`);
@@ -516,7 +517,7 @@ export default function Home() {
                 How to Use
               </h3>
               <ol style={{ marginBottom: '1.5rem', paddingLeft: '1.5rem' }}>
-                <li>Click "Browse Folder" to select and upload your files</li>
+                <li>Click "Choose Files" to select your documents</li>
                 <li>Enter a natural language search query (e.g., "project planning documents")</li>
                 <li>Click "Search" to find relevant files</li>
                 <li>View results with similarity scores and content snippets</li>
@@ -527,7 +528,7 @@ export default function Home() {
                 How It Works
               </h3>
               <ol style={{ marginBottom: '1.5rem', paddingLeft: '1.5rem' }}>
-                <li><strong>File Upload:</strong> Your files are securely processed in memory</li>
+                <li><strong>File Processing:</strong> Your files are securely processed in memory</li>
                 <li><strong>Text Extraction:</strong> Content is extracted from .txt, .pdf, and .md files</li>
                 <li><strong>AI Embeddings:</strong> Both your query and file contents are converted to semantic vectors</li>
                 <li><strong>Similarity Search:</strong> Advanced algorithms find the most relevant matches</li>
@@ -653,7 +654,7 @@ export default function Home() {
               marginBottom: '1.5rem',
               margin: '0 0 1.5rem 0'
             }}>
-              Upload & Search
+              Select Files & Search
             </h2>
             
             {/* Search Section */}
@@ -683,7 +684,7 @@ export default function Home() {
                   onMouseOver={(e) => (e.target as HTMLElement).style.backgroundColor = '#d1d5db'}
                   onMouseOut={(e) => (e.target as HTMLElement).style.backgroundColor = '#e5e7eb'}
                 >
-                  Browse Folder
+                  Choose Files
                 </button>
                 
                 {/* Information Icon */}
@@ -1037,7 +1038,7 @@ export default function Home() {
               </div>
             ) : (
               <div style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
-                <p>Upload some files and enter a search query to get started.</p>
+                <p>Select some files and enter a search query to get started.</p>
               </div>
             )}
           </div>
