@@ -1,36 +1,155 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# InsightFinder - Semantic File Search
 
-## Getting Started
+A powerful semantic search application that allows users to search through documents using natural language queries. Built with Next.js frontend and Python FastAPI backend.
 
-First, run the development server:
+## 🚀 Features
 
+- **Semantic Search**: Search documents using natural language queries
+- **Multiple File Types**: Support for `.txt`, `.pdf`, `.md`, and `.docx` files
+- **Folder Upload**: Upload entire folders for batch processing
+- **Real-time Results**: Instant search results with relevance scoring
+- **File Preview**: View full content of search results
+- **Modern UI**: Clean, responsive interface with Cognizant branding
+
+## 🛠️ Technology Stack
+
+### Frontend
+- **Next.js 14** - React framework
+- **TypeScript** - Type safety
+- **Inline CSS** - Styling
+- **React Hooks** - State management
+
+### Backend
+- **Python 3.8+** - Backend language
+- **FastAPI** - Web framework
+- **sentence-transformers** - Semantic embeddings
+- **PyPDF2** - PDF text extraction
+- **python-docx** - DOCX text extraction
+- **NumPy** - Numerical operations
+
+## 📦 Installation
+
+### Prerequisites
+- Node.js 18+ 
+- Python 3.8+
+- Git
+
+### Frontend Setup
 ```bash
+# Navigate to project directory
+cd smart-finder
+
+# Install dependencies
+npm install
+
+# Start development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Backend Setup
+```bash
+# Navigate to backend directory
+cd backend
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+# Install Python dependencies
+pip install -r requirements.txt
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Start backend server
+python app_simple.py
+```
 
-## Learn More
+## 🎯 Usage
 
-To learn more about Next.js, take a look at the following resources:
+1. **Upload Files**: Click "Browse Files" to select individual files or "Select Folder" for batch upload
+2. **Enter Query**: Type your search query in natural language
+3. **Search**: Click "Search" to find relevant documents
+4. **View Results**: Click "View" on any result to see full content
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🔧 Configuration
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Supported File Types
+- `.txt` - Plain text files
+- `.pdf` - PDF documents
+- `.md` - Markdown files
+- `.docx` - Microsoft Word documents
 
-## Deploy on Vercel
+### Search Features
+- **Semantic Matching**: Uses AI embeddings for intelligent search
+- **Relevance Scoring**: Results ranked by similarity
+- **Threshold Filtering**: Only shows relevant results (similarity > 0.1)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🚀 Deployment Options
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Option 1: Vercel (Recommended)
+```bash
+# Install Vercel CLI
+npm i -g vercel
+
+# Deploy frontend
+vercel
+
+# Deploy backend to Railway/Render
+# Upload backend folder to Railway or Render
+```
+
+### Option 2: Railway
+```bash
+# Deploy both frontend and backend
+railway login
+railway init
+railway up
+```
+
+### Option 3: Render
+```bash
+# Create render.yaml for both services
+# Deploy via Render dashboard
+```
+
+## 📁 Project Structure
+
+```
+smart-finder/
+├── src/
+│   └── app/
+│       ├── page.tsx          # Main frontend component
+│       ├── layout.tsx        # Root layout
+│       └── globals.css       # Global styles
+├── backend/
+│   ├── app_simple.py         # Main backend API
+│   ├── requirements.txt      # Python dependencies
+│   └── debug_test.py        # Debug utilities
+├── public/
+│   ├── favicon.png          # App favicon
+│   └── cognizant-logo.png   # Logo image
+└── README.md
+```
+
+## 🔍 API Endpoints
+
+- `GET /` - Health check
+- `POST /upload` - Upload files
+- `POST /search` - Search documents
+- `GET /file/{filename}` - Get file content
+- `GET /status` - Backend status
+- `GET /debug/files` - List stored files
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
+
+## 📞 Contact
+
+- **Shashi Deopa** - Shashi.Deopa@cognizant.com
+- **Yogesh Kaushik** - yogesh.kaushik2@cognizant.com
+
+## 📄 License
+
+This project is proprietary to Cognizant Technology Solutions.
+
+---
+
+**Built with ❤️ by Cognizant Team**
