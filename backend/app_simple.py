@@ -143,9 +143,9 @@ class SemanticSearch:
         # Calculate cosine similarities
         similarities = self.cosine_similarity(query_embedding, self.embeddings)
         
-        # Create results with similarity scores and apply minimum threshold
+        # Create results with similarity scores and apply higher threshold for better accuracy
         results = []
-        MIN_SIMILARITY_THRESHOLD = 0.1  # Only show results with at least 10% similarity
+        MIN_SIMILARITY_THRESHOLD = 0.15  # Lowered from 0.25 to 0.15 (15% similarity) for better balance
         
         for i, (similarity, content) in enumerate(zip(similarities, self.file_contents)):
             # Only include results above the threshold
@@ -155,11 +155,16 @@ class SemanticSearch:
                 if len(content['content']) > 300:
                     snippet += "..."
                 
+                # Calculate confidence level
+                confidence_level = self.get_confidence_level(similarity)
+                
                 results.append({
                     'filename': content['filename'],
                     'content_snippet': snippet,
                     'similarity_score': float(similarity),
-                    'file_path': content['file_path']
+                    'file_path': content['file_path'],
+                    'confidence_level': confidence_level,
+                    'match_type': self.determine_match_type(query, content['content'])
                 })
         
         # Sort by similarity score (highest first)
@@ -167,6 +172,38 @@ class SemanticSearch:
         
         return results[:top_k]
     
+    def get_confidence_level(self, similarity: float) -> str:
+        """Determine confidence level based on similarity score"""
+        if similarity >= 0.7:
+            return "Very High"
+        elif similarity >= 0.5:
+            return "High"
+        elif similarity >= 0.3:
+            return "Medium"
+        elif similarity >= 0.15:
+            return "Low"
+        else:
+            return "Very Low"
+    
+    def determine_match_type(self, query: str, content: str) -> str:
+        """Determine if it's an exact match, partial match, or semantic match"""
+        query_lower = query.lower()
+        content_lower = content.lower()
+        
+        # Check for exact phrase match
+        if query_lower in content_lower:
+            return "Exact Match"
+        
+        # Check for partial word matches
+        query_words = set(query_lower.split())
+        content_words = set(content_lower.split())
+        matching_words = query_words.intersection(content_words)
+        
+        if len(matching_words) >= len(query_words) * 0.5:  # At least 50% of words match
+            return "Partial Match"
+        
+        return "Semantic Match"
+
     @staticmethod
     def cosine_similarity(a, b):
         """Calculate cosine similarity between two tensors"""

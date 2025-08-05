@@ -9,6 +9,8 @@ interface SearchResult {
   similarity_score: number;
   file_path: string;
   full_path?: string;
+  confidence_level?: string;
+  match_type?: string;
 }
 
 export default function Home() {
@@ -20,6 +22,65 @@ export default function Home() {
   const [showHelp, setShowHelp] = useState(false);
   const [showContact, setShowContact] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Function to highlight search content in file
+  const highlightSearchContent = (fileContent: string, snippet: string, searchQuery: string): string => {
+    try {
+      // Escape HTML characters in the content
+      const escapeHtml = (text: string) => {
+        return text
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      };
+
+      let highlightedContent = escapeHtml(fileContent);
+
+      // Highlight the snippet if it exists and is actually in the content
+      if (snippet && snippet.trim()) {
+        const escapedSnippet = escapeHtml(snippet.trim());
+        const regex = new RegExp(`(${escapedSnippet.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+        if (highlightedContent.match(regex)) {
+          highlightedContent = highlightedContent.replace(regex, '<span class="highlight">$1</span>');
+        }
+      }
+
+      // Highlight individual words from the search query that actually exist in content
+      const searchWords = searchQuery.toLowerCase().split(/\s+/).filter(word => word.length > 2);
+      searchWords.forEach(word => {
+        const escapedWord = escapeHtml(word);
+        const wordRegex = new RegExp(`(${escapedWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+        if (highlightedContent.match(wordRegex)) {
+          highlightedContent = highlightedContent.replace(wordRegex, '<span class="highlight">$1</span>');
+        }
+      });
+
+      // If no highlights found, highlight the snippet area for context
+      if (!highlightedContent.includes('class="highlight"') && snippet) {
+        const escapedSnippet = escapeHtml(snippet.trim());
+        const snippetWords = escapedSnippet.split(/\s+/).filter(word => word.length > 3);
+        snippetWords.forEach(word => {
+          const wordRegex = new RegExp(`(${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+          if (highlightedContent.match(wordRegex)) {
+            highlightedContent = highlightedContent.replace(wordRegex, '<span class="highlight">$1</span>');
+          }
+        });
+      }
+
+      return highlightedContent;
+    } catch (error) {
+      console.error('Error highlighting content:', error);
+      // Fallback to just escaping HTML
+      return fileContent
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+  };
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
@@ -128,6 +189,9 @@ export default function Home() {
           const fileData = await fullPathResponse.json();
           console.log('Successfully retrieved file data with full path:', fileData.filename);
           
+          // Highlight the matching content
+          const highlightedContent = highlightSearchContent(fileData.content, result.content_snippet, query);
+          
           const newWindow = window.open('', '_blank');
           if (newWindow) {
             newWindow.document.write(`
@@ -160,6 +224,20 @@ export default function Home() {
                       font-size: 14px;
                       line-height: 1.5;
                     }
+                    .highlight { 
+                      background-color: #fef3c7; 
+                      padding: 2px 4px; 
+                      border-radius: 3px; 
+                      font-weight: bold;
+                      border: 1px solid #f59e0b;
+                    }
+                    .search-info {
+                      background: #dbeafe;
+                      padding: 10px;
+                      border-radius: 6px;
+                      margin-bottom: 15px;
+                      border-left: 4px solid #2563eb;
+                    }
                     h1 { color: #1f2937; margin: 0 0 10px 0; }
                     .score { color: #2563eb; font-weight: bold; }
                     .error { color: #dc2626; background: #fef2f2; padding: 10px; border-radius: 4px; }
@@ -170,7 +248,13 @@ export default function Home() {
                     <h1>${fileData.filename}</h1>
                     <p class="score">Similarity Score: ${(result.similarity_score * 100).toFixed(1)}%</p>
                   </div>
-                  <div class="content">${fileData.content}</div>
+                  <div class="search-info">
+                    <strong>Search Query:</strong> "${query}"<br>
+                    <strong>Matching Content:</strong> "${result.content_snippet}"<br>
+                    <strong>Match Type:</strong> ${result.match_type || 'Semantic Match'}<br>
+                    <strong>Confidence:</strong> ${result.confidence_level || 'Unknown'}
+                  </div>
+                  <div class="content">${highlightedContent}</div>
                 </body>
               </html>
             `);
@@ -183,6 +267,9 @@ export default function Home() {
       
       const fileData = await response.json();
       console.log('Successfully retrieved file data:', fileData.filename);
+      
+      // Highlight the matching content
+      const highlightedContent = highlightSearchContent(fileData.content, result.content_snippet, query);
       
       const newWindow = window.open('', '_blank');
       if (newWindow) {
@@ -216,17 +303,37 @@ export default function Home() {
                   font-size: 14px;
                   line-height: 1.5;
                 }
+                .highlight { 
+                  background-color: #fef3c7; 
+                  padding: 2px 4px; 
+                  border-radius: 3px; 
+                  font-weight: bold;
+                  border: 1px solid #f59e0b;
+                }
+                .search-info {
+                  background: #dbeafe;
+                  padding: 10px;
+                  border-radius: 6px;
+                  margin-bottom: 15px;
+                  border-left: 4px solid #2563eb;
+                }
                 h1 { color: #1f2937; margin: 0 0 10px 0; }
                 .score { color: #2563eb; font-weight: bold; }
                 .error { color: #dc2626; background: #fef2f2; padding: 10px; border-radius: 4px; }
               </style>
             </head>
             <body>
-              <div class="header">
-                <h1>${fileData.filename}</h1>
-                <p class="score">Similarity Score: ${(result.similarity_score * 100).toFixed(1)}%</p>
-              </div>
-              <div class="content">${fileData.content}</div>
+                                <div class="header">
+                    <h1>${fileData.filename}</h1>
+                    <p class="score">Similarity Score: ${(result.similarity_score * 100).toFixed(1)}%</p>
+                  </div>
+                  <div class="search-info">
+                    <strong>Search Query:</strong> "${query}"<br>
+                    <strong>Matching Content:</strong> "${result.content_snippet}"<br>
+                    <strong>Match Type:</strong> ${result.match_type || 'Semantic Match'}<br>
+                    <strong>Confidence:</strong> ${result.confidence_level || 'Unknown'}
+                  </div>
+              <div class="content">${highlightedContent}</div>
             </body>
           </html>
         `);
@@ -954,8 +1061,24 @@ export default function Home() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 {results.map((result, index) => {
                   const similarityPercent = (result.similarity_score * 100).toFixed(1);
-                  const isHighRelevance = result.similarity_score >= 0.3;
-                  const isMediumRelevance = result.similarity_score >= 0.15;
+                  const confidenceLevel = result.confidence_level || 'Unknown';
+                  const matchType = result.match_type || 'Semantic Match';
+                  
+                  // Determine relevance based on new threshold (15%)
+                  const isHighRelevance = result.similarity_score >= 0.5;
+                  const isMediumRelevance = result.similarity_score >= 0.3;
+                  const isLowRelevance = result.similarity_score >= 0.15;
+                  
+                  // Get color based on confidence
+                  const getConfidenceColor = (level: string) => {
+                    switch (level) {
+                      case 'Very High': return '#10b981';
+                      case 'High': return '#059669';
+                      case 'Medium': return '#f59e0b';
+                      case 'Low': return '#f97316';
+                      default: return '#ef4444';
+                    }
+                  };
                   
                   return (
                     <div
@@ -965,7 +1088,9 @@ export default function Home() {
                         borderRadius: '0.5rem',
                         padding: '1rem',
                         transition: 'background-color 0.2s',
-                        borderLeft: isHighRelevance ? '4px solid #10b981' : isMediumRelevance ? '4px solid #f59e0b' : '4px solid #ef4444'
+                        borderLeft: isHighRelevance ? '4px solid #10b981' : 
+                                   isMediumRelevance ? '4px solid #f59e0b' : 
+                                   isLowRelevance ? '4px solid #f97316' : '4px solid #ef4444'
                       }}
                       onMouseOver={(e) => (e.target as HTMLElement).style.backgroundColor = '#f9fafb'}
                       onMouseOut={(e) => (e.target as HTMLElement).style.backgroundColor = 'white'}
@@ -985,14 +1110,23 @@ export default function Home() {
                           {result.filename}
                         </h3>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <span style={{ 
-                            fontSize: '0.875rem', 
-                            color: isHighRelevance ? '#10b981' : isMediumRelevance ? '#f59e0b' : '#ef4444', 
-                            fontWeight: '500' 
-                          }}>
-                            {similarityPercent}% match
-                            {isHighRelevance ? ' (High)' : isMediumRelevance ? ' (Medium)' : ' (Low)'}
-                          </span>
+                          <div style={{ textAlign: 'right' }}>
+                            <span style={{ 
+                              fontSize: '0.875rem', 
+                              color: getConfidenceColor(confidenceLevel), 
+                              fontWeight: '500',
+                              display: 'block'
+                            }}>
+                              {similarityPercent}% match
+                            </span>
+                            <span style={{ 
+                              fontSize: '0.75rem', 
+                              color: '#6b7280',
+                              display: 'block'
+                            }}>
+                              {confidenceLevel} • {matchType}
+                            </span>
+                          </div>
                           <button
                             onClick={() => handleViewFile(result)}
                             style={{
