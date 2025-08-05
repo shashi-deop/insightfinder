@@ -889,52 +889,33 @@ export default function Home() {
                     marginBottom: '0.5rem',
                     margin: '0 0 0.5rem 0'
                   }}>
-                    Selected Folder:
+                    📁 Selected Folder Path:
                   </h3>
-                  <p style={{ 
-                    color: '#0c4a6e', 
-                    fontSize: '0.875rem',
-                    margin: '0',
-                    fontFamily: 'monospace',
-                    wordBreak: 'break-all'
+                  <div style={{ 
+                    backgroundColor: '#ffffff',
+                    borderRadius: '0.375rem',
+                    padding: '0.75rem',
+                    border: '1px solid #bae6fd',
+                    marginBottom: '0.5rem'
                   }}>
-                    {selectedFolder}
-                  </p>
-                </div>
-              )}
-
-              {/* Selected Files Display */}
-              {uploadedFiles.length > 0 && (
-                <div style={{ 
-                  backgroundColor: '#f9fafb', 
-                  borderRadius: '0.5rem', 
-                  padding: '1rem',
-                  border: '1px solid #e5e7eb'
-                }}>
-                  <h3 style={{ 
-                    fontSize: '0.875rem', 
-                    fontWeight: '500', 
-                    color: '#374151', 
-                    marginBottom: '0.5rem',
-                    margin: '0 0 0.5rem 0'
-                  }}>
-                    Files Found ({uploadedFiles.length}):
-                  </h3>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                    {uploadedFiles.map((file, index) => (
-                      <span
-                        key={index}
-                        style={{
-                          padding: '0.25rem 0.75rem',
-                          backgroundColor: '#dbeafe',
-                          color: '#1e40af',
-                          borderRadius: '9999px',
-                          fontSize: '0.875rem'
-                        }}
-                      >
-                        {file.name}
-                      </span>
-                    ))}
+                    <p style={{ 
+                      color: '#0c4a6e', 
+                      fontSize: '0.875rem',
+                      margin: '0',
+                      fontFamily: 'monospace',
+                      wordBreak: 'break-all',
+                      fontWeight: '500'
+                    }}>
+                      📂 {selectedFolder || 'No folder selected'}
+                    </p>
+                    <p style={{ 
+                      color: '#6b7280', 
+                      fontSize: '0.75rem',
+                      margin: '0.25rem 0 0 0',
+                      fontFamily: 'monospace'
+                    }}>
+                      📍 Folder selected for semantic search
+                    </p>
                   </div>
                 </div>
               )}
