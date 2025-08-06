@@ -46,6 +46,30 @@ venv.bak/
 ehthumbs.db
 Thumbs.db
 
+# Security files
+*.key
+*.pem
+*.crt
+*.p12
+*.pfx
+*.pem
+secrets/
+keys/
+
+# IDE settings
+.vs/
+.classpath
+.project
+.settings/
+
+# Build artifacts
+bin/
+obj/
+*.exe
+*.dll
+*.so
+*.dylib
+
 # Logs
 *.log
 logs/
